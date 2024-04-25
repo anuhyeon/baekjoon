@@ -283,8 +283,60 @@
 # visited = [0,1,1,1,0,24,567,0]
 # print(visited.count(1))
 
-a  = bin(-7)
-b = [0,1,1,1,0,0]
+# a  = bin(-7)
+# b = [0,1,1,1,0,0]
 
-print(a)
-print(a)
+# print(a)
+# print(a)
+import sys
+from collections import deque
+import copy
+n, m = map(int, sys.stdin.readline().split())
+graph = [list(map(int, sys.stdin.readline().split())) for _ in range(n)]
+visited_dfs = [[0] * m for _ in range(n)]
+
+urld = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+max_area = 0  # 최대 영역 크기를 저장할 변수 이름 변경
+
+def bfs():
+    global max_area
+    q = deque()
+    copied_graph = copy.deepcopy(graph)  # graph의 깊은 복사본을 사용
+    for i in range(n):
+        for j in range(m):
+            if copied_graph[i][j] == 2:
+                q.append((i, j))
+
+    while q:
+        x, y = q.popleft()
+        for dx, dy in urld:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < n and 0 <= ny < m and copied_graph[nx][ny] == 0:
+                copied_graph[nx][ny] = 2
+                q.append((nx, ny))
+
+    count = sum(row.count(0) for row in copied_graph)
+    if max_area < count:
+        max_area = count
+
+def dfs(cnt):
+    global graph
+    if cnt == 3:
+        bfs()  # 벽을 세운 후 바이러스 퍼트리기
+        return
+
+    for i in range(n):
+        for j in range(m):
+            if graph[i][j] == 0 and visited_dfs[i][j] == 0:
+                graph[i][j] = 1
+                visited_dfs[i][j] = 1
+                dfs(cnt + 1)
+                graph[i][j] = 0  # 다시 벽을 없애기
+                visited_dfs[i][j] = 0  # 방문 상태 초기화
+
+dfs(0)
+print(max_area)
+
+
+
+
